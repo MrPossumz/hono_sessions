@@ -13,7 +13,16 @@ interface SessionOptions {
   sessionCookieName?: string;
 }
 
-export function sessionMiddleware(options: SessionOptions) {
+type Env = {
+  Variables: {
+    session: Session;
+    session_key_rotation: boolean;
+  };
+};
+
+export function sessionMiddleware<E extends Env = Env>(
+  options: SessionOptions,
+) {
   const store = options.store;
   const encryptionKey = options.encryptionKey;
   const expireAfterSeconds = options.expireAfterSeconds;
@@ -36,7 +45,7 @@ export function sessionMiddleware(options: SessionOptions) {
     }
   }
 
-  const middleware = createMiddleware(async (c, next) => {
+  const middleware = createMiddleware<E>(async (c, next) => {
     const session = new Session();
     let sid = "";
     let session_data: SessionData | null | undefined;
